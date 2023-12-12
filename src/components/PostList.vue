@@ -1,9 +1,18 @@
 <template>
   <div class="container">
     <div class="row mt-5">
-      <div class="col-md"><h1>All post list</h1></div>
       <div class="col-md">
         <div class="card-body">
+          <input
+            type="text"
+            class="form-control"
+            v-model="titleSearch"
+            placeholder="Search with Post Title"
+          />
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="card-body mt-1">
           <button
             class="btn btn-outline-primary btn-sm mr-3"
             @click="orderByTitle('asc')"
@@ -18,23 +27,6 @@
           </button>
         </div>
       </div>
-      <!--  -->
-      <!-- <div class="card">
-        <form>
-          <div class="row">
-            <div class="col">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="First name"
-              />
-            </div>
-            <div class="col">
-              <input type="text" class="form-control" placeholder="Last name" />
-            </div>
-          </div>
-        </form>
-      </div> -->
     </div>
     <div class="row mt-2">
       <div class="col-md-12">
@@ -72,6 +64,7 @@ export default {
   data() {
     return {
       sortOrder: "asc",
+      titleSearch: null,
       //   post_lists: null,
     };
   },
@@ -92,13 +85,22 @@ export default {
   },
   computed: {
     all_posts() {
-      return this.$store.state.posts
-        .slice()
-        .sort((a, b) =>
-          this.sortOrder === "asc"
-            ? a.title.localeCompare(b.title)
-            : b.title.localeCompare(a.title)
-        );
+      if (this.titleSearch) {
+        return this.$store.state.posts.filter((item) => {
+          return this.titleSearch
+            .toLowerCase()
+            .split(" ")
+            .every((v) => item.title.toLowerCase().includes(v));
+        });
+      } else {
+        return this.$store.state.posts
+          .slice()
+          .sort((a, b) =>
+            this.sortOrder === "asc"
+              ? a.title.localeCompare(b.title)
+              : b.title.localeCompare(a.title)
+          );
+      }
     },
   },
 };
