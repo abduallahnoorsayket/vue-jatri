@@ -3,7 +3,8 @@ import axios from "axios";
 
 const store = createStore({
   state: {
-    posts: null,
+    posts: [],
+    count: 10,
   },
   mutations: {
     setPosts(state, newData) {
