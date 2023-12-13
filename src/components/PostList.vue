@@ -73,85 +73,90 @@
 </template>
 
 <script>
+import { ref, computed, watch, onMounted } from "vue";
+import { useStore } from "vuex";
+
 export default {
-  components: {},
   name: "PostList",
 
-  data() {
-    return {
-      sortOrder: "asc",
-      titleSearch: null,
-      current: 1,
-      pageSize: 10,
-    };
-  },
-  created() {
-    this.fetchPosts();
-  },
+  setup() {
+    const store = useStore();
+    const sortOrder = ref("asc");
+    const titleSearch = ref(null);
+    const current = ref(1);
+    const pageSize = ref(10);
 
-  methods: {
-    fetchPosts() {
-      this.$store.dispatch("fetchPosts");
-    },
-    orderByTitle(order) {
-      this.sortOrder = order;
-    },
-    // pagination
-    prev() {
-      this.current--;
-    },
-    next() {
-      this.current++;
-    },
-  },
-  computed: {
-    all_posts() {
-      if (this.titleSearch) {
-        return this.$store.state.posts.filter((item) => {
-          return this.titleSearch
-            .toLowerCase()
-            .split(" ")
-            .every((v) => item.title.toLowerCase().includes(v));
-        });
-      } else {
-        return this.$store.state.posts
-          .slice()
-          .sort((a, b) =>
-            this.sortOrder === "asc"
-              ? a.title.localeCompare(b.title)
-              : b.title.localeCompare(a.title)
-          );
-      }
-    },
-    //for pagination
-    indexStart() {
-      return (this.current - 1) * this.pageSize;
-    },
-    indexEnd() {
-      return this.indexStart + this.pageSize;
-    },
-    paginated() {
-      if (this.titleSearch) {
-        return this.$store.state.posts
-          .slice(this.indexStart, this.indexEnd)
-          .filter((item) => {
-            return this.titleSearch
+    onMounted(() => {
+      fetchPosts();
+    });
+
+    // Fetch posts
+    const fetchPosts = () => {
+      store.dispatch("fetchPosts");
+    };
+
+    // Order by title method
+    const orderByTitle = (order) => {
+      sortOrder.value = order;
+    };
+
+    // Pagination methods
+    const prev = () => {
+      current.value--;
+    };
+
+    const next = () => {
+      current.value++;
+    };
+
+    // Computed properties
+
+    // For pagination
+    const indexStart = computed(() => (current.value - 1) * pageSize.value);
+    const indexEnd = computed(() => indexStart.value + pageSize.value);
+
+    const paginated = computed(() => {
+      if (titleSearch.value) {
+        return store.state.posts
+          .slice(indexStart.value, indexEnd.value)
+          .filter((item) =>
+            titleSearch.value
               .toLowerCase()
               .split(" ")
-              .every((v) => item.title.toLowerCase().includes(v));
-          });
-      } else if (this.sortOrder) {
-        return this.$store.state.posts
-          .slice(this.indexStart, this.indexEnd)
+              .every((v) => item.title.toLowerCase().includes(v))
+          );
+      } else if (sortOrder.value) {
+        return store.state.posts
+          .slice(indexStart.value, indexEnd.value)
           .sort((a, b) =>
-            this.sortOrder === "asc"
+            sortOrder.value === "asc"
               ? a.title.localeCompare(b.title)
               : b.title.localeCompare(a.title)
           );
       } else {
-        return this.$store.state.posts.slice(this.indexStart, this.indexEnd);
+        return store.state.posts.slice(indexStart.value, indexEnd.value);
       }
-    },
+    });
+
+    // Watch for changes
+    watch(current, () => {
+      fetchPosts();
+    });
+
+    // Return values
+    return {
+      sortOrder,
+      titleSearch,
+      current,
+      pageSize,
+      fetchPosts,
+      orderByTitle,
+      prev,
+      next,
+      indexStart,
+      indexEnd,
+      paginated,
+    };
   },
 };
 </script>
