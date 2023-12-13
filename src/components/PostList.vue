@@ -52,8 +52,14 @@
                   >Previous</a
                 >
               </li>
+              <li class="page-item active">
+                <a class="page-link" href="#">{{ current }}</a>
+              </li>
               <li class="page-item">
-                <a class="page-link" href="#">Page No : {{ current }}</a>
+                <a class="page-link" href="#">{{ current + 1 }}</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="#">{{ current + 2 }}</a>
               </li>
               <li class="page-item">
                 <a class="page-link" href="#" @click="next()">Next</a>
